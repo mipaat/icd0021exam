@@ -1,0 +1,20 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<header>
+    <h1>Log out</h1>
+    @{
+        if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <form class="form-inline" asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">Log out</button>
+            </form>
+        }
+        else
+        {
+            <p>Successfully logged out</p>
+        }
+    }
+</header>
