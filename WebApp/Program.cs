@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Web;
@@ -9,6 +10,7 @@ using BLL.Identity.Config;
 using BLL.Identity.Extensions;
 using DAL;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Public.DTO;
@@ -28,6 +30,8 @@ builder.Services.AddScoped<IdentityAppDataInit>();
 
 var jwtSettings = builder.Configuration.GetRequiredSection(JwtSettings.SectionKey).Get<JwtSettings>();
 
+builder.Services.AddDateTimeUtcModelBinder();
+
 builder.Services
     .AddAuthentication()
     .AddCookie(options => { options.SlidingExpiration = true; })
@@ -43,6 +47,8 @@ builder.Services
             ClockSkew = TimeSpan.Zero,
         };
     });
+
+builder.Services.AddLocalization();
 
 builder.Services.DisableApiErrorRedirects(accessDeniedRedirect: context =>
 {
@@ -79,6 +85,16 @@ builder.Services.AddControllersWithViews()
 // Build app
 
 var app = builder.Build();
+
+var defaultCulture = new CultureInfo("en-US").UseConstantDateTime();
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(defaultCulture),
+    SupportedCultures = CultureInfo.GetCultures(CultureTypes.AllCultures).Select(c => c.UseConstantDateTime())
+        .ToList(),
+};
+
+app.UseRequestLocalization(localizationOptions);
 
 SetupAppData(app, builder.Configuration);
 
