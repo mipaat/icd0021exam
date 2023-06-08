@@ -1,0 +1,51 @@
+@using BLL.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model WebApp.Areas.Admin.ViewModels.ManageRolesViewModel
+
+@{
+    ViewData["Title"] = $"Manage roles for {Model.User.UserName}";
+}
+
+<h2>Manage roles for @Model.User.UserName</h2>
+<a asp-action="Index">Return to users list</a>
+
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            @foreach (var role in Model.User.UserRoles!.Select(ur => ur.Role!))
+            {
+                <div>
+                    @role.Name
+                    <form id="remove-@(role.Name)-form" asp-action="RemoveRole">
+                        @Html.Hidden("userId", Model.User.Id)
+                        @Html.Hidden("roleName", role.Name)
+                        <input @DisabledFor(role.Name!) type="submit" class="btn btn-danger" value="Remove"/>
+                    </form>
+                </div>
+                <br/>
+            }
+        </div>
+        <div class="col-6">
+            @foreach (var role in Model.OtherRoles)
+            {
+                <div>
+                    @role
+                    <form id="add-@(role)-form" asp-action="AddRole">
+                        @Html.Hidden("userId", Model.User.Id)
+                        @Html.Hidden("roleName", role)
+                        <input @DisabledFor(role) type="submit" class="btn btn-success" value="Add"/>
+                    </form>
+                </div>
+                <br/>
+            }
+        </div>
+    </div>
+</div>
+
+@functions
+{
+    string DisabledFor(string roleName)
+    {
+        return !User.IsAllowedToManageRole(roleName) ? "disabled=\"disabled\"" : "";
+    }
+}

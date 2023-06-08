@@ -9,6 +9,7 @@ public class AutoMapperConfig : Profile
     {
         CreateMap<Domain.Identity.Role, Role>();
         CreateMap<Domain.Identity.User, User>();
-        CreateMap<Domain.Identity.User, UserWithRoles>();
+        CreateMap<Domain.Identity.User, UserWithRoles>().ForMember(u => u.Roles, o =>
+            o.MapFrom(u => u.UserRoles!.Select(ur => ur.Role!)));
     }
 }

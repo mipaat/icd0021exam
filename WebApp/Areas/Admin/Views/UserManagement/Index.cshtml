@@ -1,0 +1,21 @@
+@model WebApp.Areas.Admin.ViewModels.UserManagementViewModel
+
+@{
+    ViewData["Title"] = "Manage users";
+}
+
+<h2 class="text-center mb-3">Manage users</h2>
+
+<form method="get" asp-action="Index">
+    <label asp-for="NameQuery"></label>
+    <input asp-for="NameQuery" value="@Model.NameQuery"/>
+    <input type="submit" class="btn btn-primary" value="Search"/>
+</form>
+
+@foreach (var user in Model.Users)
+{
+    <div id="manage-@user.UserName" class="dashboard-item">
+        @user.UserName<br/>
+        <a asp-action="ManageRoles" asp-route-userId="@user.Id" class="btn btn-outline-primary">Manage roles</a>
+    </div>
+}

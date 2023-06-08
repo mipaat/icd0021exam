@@ -48,7 +48,10 @@ public class TokenService
 
     public async Task DeleteExpiredRefreshTokensAsync(Guid userId)
     {
-        await DbContext.RefreshTokens.Where(r => r.UserId == userId && r.IsFullyExpired).ExecuteDeleteAsync();
+        await DbContext.RefreshTokens.Where(r =>
+            r.UserId == userId &&
+            r.ExpiresAt <= DateTime.UtcNow &&
+            r.PreviousExpiresAt != null && r.PreviousExpiresAt <= DateTime.UtcNow).ExecuteDeleteAsync();
     }
 
     private int ValidateExpiresInSeconds(int? expiresInSeconds)
