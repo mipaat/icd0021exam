@@ -4,6 +4,8 @@ using BLL;
 using BLL.DTO;
 using DAL;
 using Domain;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.ApiControllers;
@@ -15,6 +17,25 @@ public class RecipeControllerApi : BaseDbControllerApi<AppDbContext, Recipe>
     {
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> Create([FromBody] Public.DTO.CreateRecipeData data)
+    {
+        BaseEntities.Add(new Recipe
+        {
+            Name = data.Name,
+            IsPrivate = data.IsPrivate,
+            Servings = data.Servings,
+            PrepareTimeMinutes = data.PrepareTimeMinutes,
+            Instructions = data.Instructions,
+            CreatorId = User.GetUserId(),
+        });
+        await DbContext.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public async Task<ActionResult<List<Public.DTO.RecipeWithIngredients>>> GetRecipes([FromQuery] Public.DTO.RecipeSearch? search)
     {
         var recipes = await DbContext.GetRecipes(
