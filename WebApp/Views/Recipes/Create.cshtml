@@ -17,6 +17,10 @@
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control"/>
                 <span asp-validation-for="Name" class="text-danger"></span><br/>
+                
+                <label asp-for="Instructions" class="control-label"></label>
+                @Html.TextAreaFor(m => m.Instructions)
+                <span asp-validation-for="Instructions" class="text-danger"></span><br/>
 
                 <label asp-for="IsPrivate" class="control-label"></label>
                 @Html.CheckBoxFor(m => m.IsPrivate)

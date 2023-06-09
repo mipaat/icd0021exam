@@ -1,6 +1,8 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using BLL.Identity
-@model Domain.Recipe
+@using BLL
+@using Base.WebHelpers
+@model RecipeDetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -8,46 +10,82 @@
 
 <h1>Details</h1>
 
+<form method="get">
+    <input type="hidden" name="Id" value="@Model.Recipe.Id"/>
+    <label asp-for="Servings"></label>
+    <input asp-for="Servings"/>
+    <span asp-validation-for="Servings"></span>
+    <input type="submit" class="btn btn-primary"/>
+</form>
+
 <div>
     <h4>Recipe</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IsPrivate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IsPrivate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Servings)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Servings)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PrepareTimeMinutes)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PrepareTimeMinutes)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Creator)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Creator)
-        </dd>
-    </dl>
+    <hr/>
+    <div class="row">
+        <div class="col-6">
+            <div>Name: @Model.Recipe.Name</div>
+            <div>
+                Instructions:<br/>
+                <p style="white-space: pre-wrap">@Model.Recipe.Instructions</p>
+            </div>
+            <div>
+                @Html.DisplayNameFor(model => model.Recipe.IsPrivate)
+                @Html.DisplayFor(model => model.Recipe.IsPrivate)
+            </div>
+            <div>Default servings: @Model.Recipe.Servings</div>
+            <div>Prep time (minutes): @Model.Recipe.PrepareTimeMinutes</div>
+            @if (Model.Recipe.Creator != null)
+            {
+                <div>Creator: @Model.Recipe.Creator.UserName</div>
+            }
+        </div>
+        <div class="col-6">
+            @foreach (var recipeProduct in Model.Recipe.RecipeProducts!)
+            {
+                var requiredAmount = recipeProduct.Amount * RecipeHelpers.GetServingsMultiplier(Model.Recipe.Servings, Model.Servings);
+                if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    if (recipeProduct.TotalAmount() < requiredAmount)
+                    {
+                        <div class="text-danger">
+                            @recipeProduct.Product!.Name (Required: @requiredAmount, Available: @recipeProduct.TotalAmount(), Missing: @(requiredAmount - recipeProduct.TotalAmount())
+                        </div>
+                    }
+                    else
+                    {
+                        <div>@recipeProduct.Product!.Name (Required: @requiredAmount, Available: @recipeProduct.TotalAmount())</div>
+                    }
+                }
+                else
+                {
+                    <div>@recipeProduct.Product!.Name (Required: @requiredAmount)</div>
+                }
+            }
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                @if (Model.Recipe.IsPreparable(Model.Servings))
+                {
+                    <form method="post" asp-action="Prepare">
+                        <input type="hidden" name="Id" value="@Model.Recipe.Id"/>
+                        <input type="hidden" name="Servings" value="@Model.Servings"/>
+                        <input type="hidden" name="ReturnUrl" value="@Context.GetFullPath()"/>
+                        <input type="submit" class="btn btn-primary" value="Prepare meal"/>
+                    </form>
+                }
+                else
+                {
+                    <h4 class="text-danger">Can't prepare meal!</h4>
+                    <h5>Missing required ingredients</h5>
+                }
+            }
+        </div>
+    </div>
 </div>
 <div>
-    @if (User.IsAllowedToManageRecipe(Model))
+    @if (User.IsAllowedToManageRecipe(Model.Recipe))
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a>@: | 
+        <a asp-action="Edit" asp-route-id="@Model.Recipe.Id">Edit</a>
+        @: | 
     }
     <a asp-action="Index">Back to List</a>
 </div>

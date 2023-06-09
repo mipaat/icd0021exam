@@ -18,7 +18,7 @@
             <span asp-validation-for="Recipe.Name" class="text-danger"></span><br/>
 
             <label asp-for="Recipe.Instructions" class="control-label"></label>
-            <input asp-for="Recipe.Instructions" class="form-control"/>
+            @Html.TextAreaFor(m => m.Recipe.Instructions)
             <span asp-validation-for="Recipe.Instructions" class="text-danger"></span><br/>
 
             <label asp-for="Recipe.IsPrivate" class="control-label"></label>

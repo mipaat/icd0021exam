@@ -124,7 +124,7 @@ public static class RecipeHelpers
         var result = await query.ToListAsync();
         if (filterServable)
         {
-            result = query.Where(r => r.IsPreparable(servingsAmount)).ToList();
+            result = result.Where(r => r.IsPreparable(servingsAmount)).ToList();
         }
 
         return result;

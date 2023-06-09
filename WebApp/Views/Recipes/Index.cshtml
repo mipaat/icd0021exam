@@ -32,13 +32,14 @@
     <span asp-validation-for="MaxPrepareTime" class="text-danger"></span>
 
     <label asp-for="FilterServable"></label>
-    @Html.CheckBoxFor(m => m.FilterServable)
+    <input type="checkbox" asp-for="FilterServable"/>
+    <input type="hidden" asp-for="FilterServable" value="false"/>
 
     <input asp-for="Servings"/>
     <span asp-validation-for="Servings" class="text-danger"></span>
 
     <select asp-for="PrivacyFilter" asp-items="@Html.GetEnumSelectList<ERecipePrivacyFilter>()"></select>
-    
+
     <input type="submit" class="btn btn-primary" value="Search"/>
 </form>
 <table class="table">
@@ -71,7 +72,9 @@
         <tr>
             <td>
                 <a asp-action="Details" class="btn btn-success"
-                   asp-route-id="@item.Id" asp-route-servings="@Model.Servings">@item.Name</a>
+                   asp-route-id="@item.Id" asp-route-servings="@Model.Servings">
+                    @item.Name
+                </a>
             </td>
             <td>
                 @item.Servings

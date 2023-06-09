@@ -64,7 +64,9 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
             excludesIngredientQuery: model.ExcludesIngredientQuery,
             minPrepareTime: model.MinPrepareTime,
             maxPrepareTime: model.MaxPrepareTime,
-            privacyFilter: model.PrivacyFilter
+            privacyFilter: model.PrivacyFilter,
+            filterServable: model.FilterServable,
+            servingsAmount: model.Servings
         );
         return View(model);
     }
@@ -77,7 +79,11 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
             return NotFound();
         }
 
-        return View(entity);
+        return View(new RecipeDetailsViewModel
+        {
+            Recipe = entity,
+            Servings = servings,
+        });
     }
 
     [Authorize]
@@ -155,12 +161,12 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Prepare(Guid id, string? returnUrl = null)
+    public async Task<IActionResult> Prepare(Guid id, float? servings, string? returnUrl = null)
     {
         var recipe = await Entities.FirstOrDefaultAsync(e => e.Id == id);
         if (recipe == null) return NotFound();
-        if (!recipe.IsPreparable()) return BadRequest();
-        RecipeHelpers.PrepareRecipe(DbContext, recipe);
+        if (!recipe.IsPreparable(servings)) return BadRequest();
+        RecipeHelpers.PrepareRecipe(DbContext, recipe, servings);
         await DbContext.SaveChangesAsync();
         if (returnUrl != null) return Redirect(returnUrl);
         return RedirectToAction(nameof(Index));
