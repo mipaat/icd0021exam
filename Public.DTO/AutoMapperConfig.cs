@@ -14,5 +14,6 @@ public class AutoMapperConfig : Profile
 
         CreateMap<Domain.Product, Product>().ReverseMap();
         CreateMap<Domain.ProductExistence, ProductExistence>();
+        CreateMap<Domain.Recipe, Recipe>();
     }
 }

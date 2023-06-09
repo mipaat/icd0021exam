@@ -115,8 +115,6 @@ public class ProductControllerApi : BaseDbControllerApi<AppDbContext, Product>
     [HttpPut]
     public async Task<IActionResult> UpdateExistence([FromQuery] Guid id, [FromBody] Public.DTO.ProductExistenceData data)
     {
-        Console.WriteLine("HLLEOLOEFOL");
-        Console.WriteLine(id);
         if (!await DbContext.ProductExistences.AnyAsync(e => e.Id == id)) return NotFound();
         var userId = User.GetUserId();
         if (!await DbContext.ProductExistences.AnyAsync(e => e.Id == id && e.UserId == userId)) return Forbid();
