@@ -1,0 +1,45 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ProductExistencesCreateEditViewModel
+
+@{
+    ViewData["Title"] = "Edit product existence entry";
+}
+
+<h1>Edit product existence entry</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
+{
+    <a href="@Model.ReturnUrl">Go back</a>
+}
+
+<hr/>
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.HiddenFor(m => m.ProductExistence.ProductId)
+            @Html.HiddenFor(m => m.ReturnUrl)
+            <div class="form-group">
+                <label asp-for="ProductExistence.Amount" class="control-label">Amount (@Model.Product.Unit)</label>
+                <input asp-for="ProductExistence.Amount" class="form-control"/>
+                <span asp-validation-for="ProductExistence.Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductExistence.Location" class="control-label"></label>
+                <input asp-for="ProductExistence.Location" class="form-control"/>
+                <span asp-validation-for="ProductExistence.Location" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="ProductExistence.Id"/>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary"/>
+            </div>
+        </form>
+        <form asp-action="Delete" asp-route-id="@Model.ProductExistence.Id" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <input type="submit" class="btn btn-danger" value="Delete"/>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

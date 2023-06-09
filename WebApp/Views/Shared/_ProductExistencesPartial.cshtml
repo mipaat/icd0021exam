@@ -1,0 +1,42 @@
+@using Base.WebHelpers
+@model ProductExistencesPartialViewModel
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <div>
+        @if (Model.Products.Count == 1)
+        {
+            var product = Model.Products[0];
+            <div>
+                <h6>Total: @product.ProductExistences!.Sum(e => e.Amount)</h6>
+            </div>
+            @foreach (var existence in product.ProductExistences!)
+            {
+                <partial name="_ProductExistencePartial" model="@(existence, product.Unit)"/>
+            }
+            <a class="btn btn-primary" asp-controller="ProductExistences" asp-action="Create" asp-route-productId="@product.Id" asp-route-returnUrl="@Context.GetFullPath()">Create new</a>
+        }
+        else
+        {
+            @foreach (var product in Model.Products)
+            {
+                <div class="btn-group">
+                    <button type="button" id="admin-dropdown" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
+                        @product.Name
+                    </button>
+                    <ul class="dropdown-menu">
+                        <div>
+                            <h6>Total: @product.ProductExistences!.Sum(e => e.Amount)</h6>
+                        </div>
+                        @foreach (var existence in product.ProductExistences!)
+                        {
+                            <partial name="_ProductExistencePartial" model="@(existence, product.Unit)"/>
+                        }
+                        <a asp-controller="ProductExistences" asp-action="Create" asp-route-productId="@product.Id" asp-route-returnUrl="@Context.GetFullPath()">Create new</a>
+                    </ul>
+                </div>
+            }
+        }
+        <a></a>
+    </div>
+}

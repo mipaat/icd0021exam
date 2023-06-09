@@ -19,6 +19,9 @@
         <th>
             @Html.DisplayNameFor(model => model[0].Name)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model[0].ProductExistences)
+        </th>
         <th></th>
     </tr>
     </thead>
@@ -28,6 +31,9 @@
         <tr>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+            </td>
+            <td>
+                <partial name="_ProductExistencesPartial" model="@(new ProductExistencesPartialViewModel(item))"/>
             </td>
             <td>
                 @if (User.IsInRole(RoleNames.Admin))

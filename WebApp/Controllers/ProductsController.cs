@@ -4,6 +4,7 @@ using DAL;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Controllers;
 
@@ -51,5 +52,14 @@ public class ProductsController : BaseEntityCrudControllerMvc<AppDbContext, Prod
     public async Task<IActionResult> EditPost([FromForm] Product entity)
     {
         return await EditInternal(entity.Id, entity);
+    }
+
+    protected override IQueryable<Product> Entities
+    {
+        get
+        {
+            var userId = User.GetUserIdIfExists();
+            return BaseEntities.Include(p => p.ProductExistences!.Where(e => e.UserId == userId));
+        }
     }
 }

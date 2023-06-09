@@ -4,27 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Base.WebHelpers;
 
-public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Controller
-    where TDbContext : DbContext
+public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : 
+    BaseDbControllerMvc<TDbContext, TEntity> where TDbContext : DbContext
     where TEntity : class, IIdDatabaseEntity
 {
-    protected readonly TDbContext DbContext;
-
-    public BaseEntityCrudControllerMvc(TDbContext dbContext)
+    protected BaseEntityCrudControllerMvc(TDbContext dbContext) : base(dbContext)
     {
-        DbContext = dbContext;
     }
-
-    protected virtual IQueryable<TEntity> Entities => BaseEntities;
-
-    protected DbSet<TEntity> BaseEntities =>
-        DbContext
-            .GetType()
-            .GetProperties()
-            .FirstOrDefault(pi => pi.PropertyType == typeof(DbSet<TEntity>))
-            ?.GetValue(DbContext) as DbSet<TEntity> ??
-        throw new ApplicationException(
-            $"Failed to fetch DbSet for Entity type {typeof(TEntity)} from {typeof(TDbContext)}");
 
     // GET: Entity
     public virtual async Task<IActionResult> Index()
@@ -44,16 +30,10 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
         return View(entity);
     }
 
-    protected virtual Task SetupViewData(TEntity? entity = null)
-    {
-        return Task.CompletedTask;
-    }
-
     // GET: Entity/Create
-    public virtual async Task<IActionResult> Create()
+    public virtual Task<IActionResult> Create()
     {
-        await SetupViewData();
-        return View();
+        return Task.FromResult<IActionResult>(View());
     }
 
     // POST: Entity/Create
@@ -71,8 +51,6 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
             // ReSharper disable once Mvc.ActionNotResolved
             return RedirectToAction(nameof(Index));
         }
-
-        await SetupViewData(entity);
         return View(entity);
     }
 
@@ -85,7 +63,6 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
             return NotFound();
         }
 
-        await SetupViewData(entity);
         return View(entity);
     }
 
@@ -122,7 +99,6 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
             return RedirectToAction(nameof(Index));
         }
 
-        await SetupViewData(entity);
         return View(entity);
     }
 

@@ -1,0 +1,14 @@
+@using Base.WebHelpers
+@model (Domain.ProductExistence Existence, string Unit)
+
+<div><a asp-controller="ProductExistences" asp-action="Edit"
+        asp-route-id="@Model.Existence.Id" asp-route-returnUrl="@Context.GetFullPath()">
+    @DisplayText
+</a></div>
+
+@functions
+{
+    string DisplayText => $"{Model.Existence.Amount} {Model.Unit}" + (
+        string.IsNullOrWhiteSpace(Model.Existence.Location) ? "" :
+            $" at {Model.Existence.Location}");
+}

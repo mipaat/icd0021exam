@@ -13,5 +13,5 @@ public class ProductExistence : AbstractIdDatabaseEntity
     public User? User { get; set; }
 
     [MaxLength(512)] public string? Location { get; set; }
-    public float Amount { get; set; }
+    [Range(0, 9999)] public float Amount { get; set; }
 }
