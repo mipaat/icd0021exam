@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers;
 
-public class CategoriesController : BaseEntityCrudControllerMvc<AppDbContext, Category>
+public class ProductsController : BaseEntityCrudControllerMvc<AppDbContext, Product>
 {
-    public CategoriesController(AppDbContext dbContext) : base(dbContext)
+    public ProductsController(AppDbContext dbContext) : base(dbContext)
     {
     }
 
@@ -40,7 +40,7 @@ public class CategoriesController : BaseEntityCrudControllerMvc<AppDbContext, Ca
     [HttpPost]
     [ActionName(nameof(Create))]
     [Authorize(Roles = RoleNames.Admin)]
-    public async Task<IActionResult> CreatePost([FromForm] Category entity)
+    public async Task<IActionResult> CreatePost([FromForm] Product entity)
     {
         return await CreateInternal(entity);
     }
@@ -48,7 +48,7 @@ public class CategoriesController : BaseEntityCrudControllerMvc<AppDbContext, Ca
     [HttpPost]
     [ActionName(nameof(Edit))]
     [Authorize(Roles = RoleNames.Admin)]
-    public async Task<IActionResult> EditPost([FromForm] Category entity)
+    public async Task<IActionResult> EditPost([FromForm] Product entity)
     {
         return await EditInternal(entity.Id, entity);
     }
