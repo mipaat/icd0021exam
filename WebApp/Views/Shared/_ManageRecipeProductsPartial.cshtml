@@ -1,0 +1,54 @@
+@using Base.WebHelpers
+@using Domain
+@model ManageRecipeProductsPartialViewModel
+
+<div>
+    <div class="row row-cols-2">
+        <div class="col">
+            <h4>Ingredients in recipe</h4>
+            @foreach (var recipeProduct in Model.RecipeProducts)
+            {
+                {
+                    // TODO: amount validation?
+                }
+                <div>
+                    @recipeProduct.Product!.Name
+                    <form method="post" asp-controller="RecipeProducts" asp-action="Set">
+                        <input type="hidden" name="@nameof(SetRecipeProductData.ReturnUrl)" value="@Context.GetFullPath()"/>
+                        <input type="hidden" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.Id))" value="@recipeProduct.Id"/>
+                        <input type="hidden" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.RecipeId))" value="@recipeProduct.RecipeId"/>
+                        <input type="hidden" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.ProductId))" value="@recipeProduct.ProductId"/>
+                        <label>
+                            Amount (@recipeProduct.Product.Unit)
+                            <input type="text" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.Amount))" value="@recipeProduct.Amount"/>
+                        </label>
+                        <input type="submit" value="Update" class="btn btn-primary"/>
+                    </form>
+                    <form method="post" asp-controller="RecipeProducts" asp-action="Remove"
+                          asp-route-id="@recipeProduct.Id" asp-route-returnUrl="@Context.GetFullPath()">
+                        <input type="submit" value="Remove" class="btn btn-danger"/>
+                    </form>
+                </div>
+            }
+        </div>
+        <div class="col">
+            <h4>Ingredients not in recipe</h4>
+            @foreach (var product in Model.Products.Where(p => Model.RecipeProducts.All(rp => rp.ProductId != p.Id)))
+            {
+                <div>
+                    @product.Name
+                    <form method="post" asp-controller="RecipeProducts" asp-action="Set">
+                        <input type="hidden" name="@nameof(SetRecipeProductData.ReturnUrl)" value="@Context.GetFullPath()"/>
+                        <input type="hidden" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.RecipeId))" value="@Model.RecipeId"/>
+                        <input type="hidden" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.ProductId))" value="@product.Id"/>
+                        <label>
+                            Amount (@product.Unit)
+                            <input type="text" name="@(nameof(RecipeProduct) + '.' + nameof(RecipeProduct.Amount))"/>
+                        </label>
+                        <input type="submit" value="Add" class="btn btn-primary"/>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</div>

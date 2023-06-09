@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Base.WebHelpers;
 
 public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : 
-    BaseDbControllerMvc<TDbContext, TEntity> where TDbContext : DbContext
+    BaseBasicEntityCrudController<TDbContext, TEntity> where TDbContext : DbContext
     where TEntity : class, IIdDatabaseEntity
 {
     protected BaseEntityCrudControllerMvc(TDbContext dbContext) : base(dbContext)
@@ -36,24 +36,6 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> :
         return Task.FromResult<IActionResult>(View());
     }
 
-    // POST: Entity/Create
-    // Requires creation of separate public Create method in derived class
-    // That method should have [HttpPost] [ValidateAntiForgeryToken] attributes
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    protected async Task<IActionResult> CreateInternal(TEntity entity)
-    {
-        if (ModelState.IsValid)
-        {
-            entity.Id = Guid.NewGuid();
-            BaseEntities.Add(entity);
-            await DbContext.SaveChangesAsync();
-            // ReSharper disable once Mvc.ActionNotResolved
-            return RedirectToAction(nameof(Index));
-        }
-        return View(entity);
-    }
-
     // GET: Entity/Edit/5
     public virtual async Task<IActionResult> Edit(Guid id)
     {
@@ -61,42 +43,6 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> :
         if (entity == null)
         {
             return NotFound();
-        }
-
-        return View(entity);
-    }
-
-    // POST: Entity/Edit/5
-    // Requires creation of separate public Edit method in derived class
-    // That method should have [HttpPost] [ValidateAntiForgeryToken] attributes
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    public async Task<IActionResult> EditInternal(Guid id, TEntity entity)
-    {
-        if (!id.Equals(entity.Id))
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                BaseEntities.Update(entity);
-                await DbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await Entities.AnyAsync(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-
-                throw;
-            }
-
-            // ReSharper disable once Mvc.ActionNotResolved
-            return RedirectToAction(nameof(Index));
         }
 
         return View(entity);

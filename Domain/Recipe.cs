@@ -11,7 +11,7 @@ public class Recipe : AbstractIdDatabaseEntity
     public bool IsPrivate { get; set; }
     public float Servings { get; set; }
     [Display(Name = "Preparation time (minutes)")]
-    public int PrepareTimeMinutes { get; set; }
+    [Range(1, 9999)] public int PrepareTimeMinutes { get; set; }
 
     public Guid? CreatorId { get; set; }
     public User? Creator { get; set; }
