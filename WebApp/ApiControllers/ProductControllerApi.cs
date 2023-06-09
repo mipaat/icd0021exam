@@ -65,4 +65,82 @@ public class ProductControllerApi : BaseDbControllerApi<AppDbContext, Product>
         await DbContext.SaveChangesAsync();
         return Ok();
     }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpGet]
+    public async Task<ActionResult<List<Public.DTO.ProductExistence>>> GetExistences()
+    {
+        var userId = User.GetUserId();
+        var result = await DbContext.ProductExistences
+            .Include(e => e.Product)
+            .Include(e => e.User)
+            .Where(e => e.UserId == userId)
+            .ProjectTo<Public.DTO.ProductExistence>(Mapper.ConfigurationProvider)
+            .ToListAsync();
+        return Ok(result);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpGet]
+    public async Task<ActionResult<Public.DTO.ProductExistence>> GetExistenceById(Guid id)
+    {
+        var userId = User.GetUserId();
+        var result = await DbContext.ProductExistences
+            .Include(e => e.Product)
+            .Include(e => e.User)
+            .Where(e => e.UserId == userId)
+            .ProjectTo<Public.DTO.ProductExistence>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost]
+    public async Task<IActionResult> CreateExistence(Public.DTO.ProductExistenceData data)
+    {
+        if (!await DbContext.Products.AnyAsync(e => e.Id == data.ProductId)) return NotFound();
+        DbContext.ProductExistences.Add(new ProductExistence
+        {
+            ProductId = data.ProductId,
+            Amount = data.Amount,
+            Location = data.Location,
+            UserId = User.GetUserId(),
+        });
+        await DbContext.SaveChangesAsync();
+        return Ok();
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPut]
+    public async Task<IActionResult> UpdateExistence([FromQuery] Guid id, [FromBody] Public.DTO.ProductExistenceData data)
+    {
+        Console.WriteLine("HLLEOLOEFOL");
+        Console.WriteLine(id);
+        if (!await DbContext.ProductExistences.AnyAsync(e => e.Id == id)) return NotFound();
+        var userId = User.GetUserId();
+        if (!await DbContext.ProductExistences.AnyAsync(e => e.Id == id && e.UserId == userId)) return Forbid();
+        if (!await DbContext.Products.AnyAsync(e => e.Id == data.ProductId)) return NotFound();
+        DbContext.ProductExistences.Update(new ProductExistence
+        {
+            Id = id,
+            Amount = data.Amount,
+            Location = data.Location,
+            ProductId = data.ProductId,
+            UserId = userId,
+        });
+        await DbContext.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> DeleteExistence(Guid id)
+    {
+        var userId = User.GetUserId();
+        await DbContext.ProductExistences
+            .Where(e => e.Id == id && e.UserId == userId)
+            .ExecuteDeleteAsync();
+        return Ok();
+    }
 }

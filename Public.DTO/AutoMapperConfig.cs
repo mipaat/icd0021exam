@@ -13,5 +13,6 @@ public class AutoMapperConfig : Profile
             o.MapFrom(u => u.UserRoles!.Select(ur => ur.Role!)));
 
         CreateMap<Domain.Product, Product>().ReverseMap();
+        CreateMap<Domain.ProductExistence, ProductExistence>();
     }
 }

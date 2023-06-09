@@ -21,7 +21,7 @@
             @foreach (var product in Model.Products)
             {
                 <div class="btn-group">
-                    <button type="button" id="admin-dropdown" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
+                    <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
                         @product.Name
                     </button>
                     <ul class="dropdown-menu">
@@ -37,6 +37,5 @@
                 </div>
             }
         }
-        <a></a>
     </div>
 }
