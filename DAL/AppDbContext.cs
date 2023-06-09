@@ -1,3 +1,4 @@
+using Domain;
 using Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -13,6 +14,14 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid, IdentityUserClai
     }
 
     public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
+
+    public DbSet<Category> Categories { get; set; } = default!;
+    public DbSet<Product> Products { get; set; } = default!;
+    public DbSet<ProductCategory> ProductCategories { get; set; } = default!;
+    public DbSet<ProductExistence> ProductExistences { get; set; } = default!;
+    public DbSet<Recipe> Recipes { get; set; } = default!;
+    public DbSet<RecipeCategory> RecipeCategories { get; set; } = default!;
+    public DbSet<RecipeProduct> RecipeProducts { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
