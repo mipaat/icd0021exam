@@ -48,7 +48,7 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
     }
 
     // GET: Entity/Create
-    public async Task<IActionResult> Create()
+    public virtual async Task<IActionResult> Create()
     {
         await SetupViewData();
         return View();
@@ -75,7 +75,7 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
     }
 
     // GET: Entity/Edit/5
-    public async Task<IActionResult> Edit(Guid id)
+    public virtual async Task<IActionResult> Edit(Guid id)
     {
         var entity = await Entities.Where(e => e.Id == id).FirstOrDefaultAsync();
         if (entity == null)
@@ -125,7 +125,7 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
     }
 
     // GET: Entity/Delete/5
-    public async Task<IActionResult> Delete(Guid id)
+    public virtual async Task<IActionResult> Delete(Guid id)
     {
         var entity = await Entities.FirstOrDefaultAsync(e => e.Id == id);
         if (entity == null)
@@ -139,7 +139,7 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
     // POST: Entity/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    public virtual async Task<IActionResult> DeleteConfirmed(Guid id)
     {
         await Entities.Where(e => e.Id == id).ExecuteDeleteAsync();
 
