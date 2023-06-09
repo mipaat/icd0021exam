@@ -1,4 +1,6 @@
 @using BLL.Identity
+@using BLL
+@using Base.WebHelpers
 @model List<Domain.Recipe>
 
 @{
@@ -22,6 +24,9 @@
         <th>
             @Html.DisplayNameFor(model => model[0].PrepareTimeMinutes)
         </th>
+        <td>
+            Ingredients
+        </td>
         <th>
             @Html.DisplayNameFor(model => model[0].IsPrivate)
         </th>
@@ -37,12 +42,38 @@
         <tr>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                @if (item.IsPreparable())
+                {
+                    <form method="post" asp-action="Prepare" asp-route-id="@item.Id" asp-route-returnUrl="@Context.GetFullPath()">
+                        <input type="submit" class="btn btn-success" value="Prepare"/>
+                    </form>
+                }
             </td>
             <td>
                 @item.Servings
             </td>
             <td>
                 @item.PrepareTimeMinutes
+            </td>
+            <td>
+                @foreach (var recipeProduct in item.RecipeProducts!)
+                {
+                    if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        if (recipeProduct.IsMissingIngredient())
+                        {
+                            <div class="text-danger">@recipeProduct.Product!.Name (Required: @recipeProduct.Amount, Available: @recipeProduct.TotalAmount(), Missing: @recipeProduct.MissingAmount())</div>
+                        }
+                        else
+                        {
+                            <div>@recipeProduct.Product!.Name (Required: @recipeProduct.Amount, Available: @recipeProduct.TotalAmount())</div>
+                        }
+                    }
+                    else
+                    {
+                        <div>@recipeProduct.Product!.Name (Required: @recipeProduct.Amount)</div>
+                    }
+                }
             </td>
             <td>
                 @item.IsPrivate

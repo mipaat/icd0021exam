@@ -1,4 +1,5 @@
 using Base.WebHelpers;
+using BLL;
 using BLL.Identity;
 using DAL;
 using Domain;
@@ -137,6 +138,19 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
         return RedirectToAction(nameof(Edit), new { model.Recipe.Id, model.ProductNameQuery });
     }
 
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Prepare(Guid id, string? returnUrl = null)
+    {
+        var recipe = await Entities.FirstOrDefaultAsync(e => e.Id == id);
+        if (recipe == null) return NotFound();
+        if (!recipe.IsPreparable()) return BadRequest();
+        RecipeHelpers.PrepareRecipe(DbContext, recipe);
+        await DbContext.SaveChangesAsync();
+        if (returnUrl != null) return Redirect(returnUrl);
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task<bool> IsAdminOrAuthor(Guid id)
     {
         if (User.IsInRole(RoleNames.Admin)) return true;
@@ -149,9 +163,11 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
     {
         get
         {
+            var userId = User.GetUserIdIfExists();
             return BaseEntities.Include(e => e.Creator)
                 .Include(e => e.RecipeProducts!)
-                .ThenInclude(e => e.Product);
+                .ThenInclude(e => e.Product!)
+                .ThenInclude(e => e.ProductExistences!.Where(p => p.UserId == userId));
         }
     }
 }
