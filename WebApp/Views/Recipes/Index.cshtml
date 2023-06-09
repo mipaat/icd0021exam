@@ -1,7 +1,7 @@
 @using BLL.Identity
 @using BLL
 @using Base.WebHelpers
-@model List<Domain.Recipe>
+@model RecipesIndexModel
 
 @{
     ViewData["Title"] = "Recipes";
@@ -12,32 +12,48 @@
 <p>
     <a class="btn btn-primary" asp-action="Create">Create New</a>
 </p>
+
+<form method="get">
+    <label asp-for="NameQuery"></label>
+    <input asp-for="NameQuery"/>
+    <label asp-for="IncludesIngredientQuery"></label>
+    <input asp-for="IncludesIngredientQuery"/>
+    <label asp-for="ExcludesIngredientQuery"></label>
+    <input asp-for="ExcludesIngredientQuery"/>
+    <label asp-for="MinPrepareTime"></label>
+    <input asp-for="MinPrepareTime"/>
+    <span asp-validation-for="MinPrepareTime" class="text-danger"></span>
+    <label asp-for="MaxPrepareTime"></label>
+    <input asp-for="MaxPrepareTime"/>
+    <span asp-validation-for="MaxPrepareTime" class="text-danger"></span>
+    <input type="submit" class="btn btn-primary" value="Search"/>
+</form>
 <table class="table">
     <thead>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].Name)
+            @Html.DisplayNameFor(model => model.Recipes[0].Name)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Servings)
+            @Html.DisplayNameFor(model => model.Recipes[0].Servings)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].PrepareTimeMinutes)
+            @Html.DisplayNameFor(model => model.Recipes[0].PrepareTimeMinutes)
         </th>
         <td>
             Ingredients
         </td>
         <th>
-            @Html.DisplayNameFor(model => model[0].IsPrivate)
+            @Html.DisplayNameFor(model => model.Recipes[0].IsPrivate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Creator)
+            @Html.DisplayNameFor(model => model.Recipes[0].Creator)
         </th>
         <th></th>
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model)
+    @foreach (var item in Model.Recipes)
     {
         <tr>
             <td>

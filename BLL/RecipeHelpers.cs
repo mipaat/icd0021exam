@@ -2,6 +2,7 @@ using BLL.DTO;
 using BLL.DTO.Exceptions;
 using DAL;
 using Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL;
 
@@ -63,5 +64,51 @@ public static class RecipeHelpers
         }
 
         if (missing.Count > 0) throw new NotEnoughIngredientsException(missing);
+    }
+
+    public static async Task<List<Recipe>> GetRecipes(this AppDbContext dbContext,
+        Guid? userId = null,
+        string? nameQuery = null,
+        string? includesIngredientQuery = null,
+        string? excludesIngredientQuery = null,
+        int? minPrepareTime = null,
+        int? maxPrepareTime = null)
+    {
+        IQueryable<Recipe> query = dbContext.Recipes.Include(e => e.Creator)
+            .Include(e => e.RecipeProducts!)
+            .ThenInclude(e => e.Product!)
+            .ThenInclude(e => e.ProductExistences!.Where(p => p.UserId == userId));
+        if (nameQuery != null)
+        {
+            query = query.Where(e => EF.Functions.Like(e.Name, $"%{nameQuery}%"));
+        }
+
+        if (includesIngredientQuery != null)
+        {
+            var requiredIngredients = includesIngredientQuery.Split(", ");
+            query = query.Where(e =>
+                e.RecipeProducts!.Select(rp => rp.Product)
+                    .Any(p => requiredIngredients.Any(i => EF.Functions.ILike(p!.Name, i))));
+        }
+
+        if (excludesIngredientQuery != null)
+        {
+            var excludedIngredients = excludesIngredientQuery.Split(", ");
+            query = query.Where(e => 
+                e.RecipeProducts!.Select(rp => rp.Product!)
+                    .All(p => !excludedIngredients.Any(i => EF.Functions.ILike(p!.Name, i))));
+        }
+
+        if (minPrepareTime != null)
+        {
+            query = query.Where(e => e.PrepareTimeMinutes >= minPrepareTime);
+        }
+
+        if (maxPrepareTime != null)
+        {
+            query = query.Where(e => e.PrepareTimeMinutes <= maxPrepareTime);
+        }
+
+        return await query.ToListAsync();
     }
 }

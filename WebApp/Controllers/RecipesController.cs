@@ -49,9 +49,23 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
         return View();
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(RecipesIndexModel? model = null)
     {
-        return View(await Entities.ToListAsync());
+        model ??= new RecipesIndexModel();
+        if (!ModelState.IsValid)
+        {
+            model.Recipes = await DbContext.GetRecipes();
+            return View(model);
+        }
+        model.Recipes = await DbContext.GetRecipes(
+            userId: User.GetUserIdIfExists(),
+            nameQuery: model.NameQuery,
+            includesIngredientQuery: model.IncludesIngredientQuery,
+            excludesIngredientQuery: model.ExcludesIngredientQuery,
+            minPrepareTime: model.MinPrepareTime,
+            maxPrepareTime: model.MaxPrepareTime
+        );
+        return View(model);
     }
 
     public async Task<IActionResult> Details(Guid id)
