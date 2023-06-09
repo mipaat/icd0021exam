@@ -63,12 +63,13 @@ public class Recipes : BaseBasicEntityCrudController<AppDbContext, Recipe>
             includesIngredientQuery: model.IncludesIngredientQuery,
             excludesIngredientQuery: model.ExcludesIngredientQuery,
             minPrepareTime: model.MinPrepareTime,
-            maxPrepareTime: model.MaxPrepareTime
+            maxPrepareTime: model.MaxPrepareTime,
+            privacyFilter: model.PrivacyFilter
         );
         return View(model);
     }
 
-    public async Task<IActionResult> Details(Guid id)
+    public async Task<IActionResult> Details(Guid id, int? servings = null)
     {
         var entity = await Entities.Where(e => e.Id == id).FirstOrDefaultAsync();
         if (entity == null)

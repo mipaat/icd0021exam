@@ -1,6 +1,6 @@
 @using BLL.Identity
 @using BLL
-@using Base.WebHelpers
+@using BLL.DTO
 @model RecipesIndexModel
 
 @{
@@ -16,16 +16,29 @@
 <form method="get">
     <label asp-for="NameQuery"></label>
     <input asp-for="NameQuery"/>
+
     <label asp-for="IncludesIngredientQuery"></label>
     <input asp-for="IncludesIngredientQuery"/>
+
     <label asp-for="ExcludesIngredientQuery"></label>
     <input asp-for="ExcludesIngredientQuery"/>
+
     <label asp-for="MinPrepareTime"></label>
     <input asp-for="MinPrepareTime"/>
     <span asp-validation-for="MinPrepareTime" class="text-danger"></span>
+
     <label asp-for="MaxPrepareTime"></label>
     <input asp-for="MaxPrepareTime"/>
     <span asp-validation-for="MaxPrepareTime" class="text-danger"></span>
+
+    <label asp-for="FilterServable"></label>
+    @Html.CheckBoxFor(m => m.FilterServable)
+
+    <input asp-for="Servings"/>
+    <span asp-validation-for="Servings" class="text-danger"></span>
+
+    <select asp-for="PrivacyFilter" asp-items="@Html.GetEnumSelectList<ERecipePrivacyFilter>()"></select>
+    
     <input type="submit" class="btn btn-primary" value="Search"/>
 </form>
 <table class="table">
@@ -57,13 +70,8 @@
     {
         <tr>
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
-                @if (item.IsPreparable())
-                {
-                    <form method="post" asp-action="Prepare" asp-route-id="@item.Id" asp-route-returnUrl="@Context.GetFullPath()">
-                        <input type="submit" class="btn btn-success" value="Prepare"/>
-                    </form>
-                }
+                <a asp-action="Details" class="btn btn-success"
+                   asp-route-id="@item.Id" asp-route-servings="@Model.Servings">@item.Name</a>
             </td>
             <td>
                 @item.Servings
@@ -74,20 +82,23 @@
             <td>
                 @foreach (var recipeProduct in item.RecipeProducts!)
                 {
+                    var requiredAmount = recipeProduct.Amount * RecipeHelpers.GetServingsMultiplier(item.Servings, Model.Servings);
                     if (User.Identity?.IsAuthenticated ?? false)
                     {
-                        if (recipeProduct.IsMissingIngredient())
+                        if (recipeProduct.TotalAmount() < requiredAmount)
                         {
-                            <div class="text-danger">@recipeProduct.Product!.Name (Required: @recipeProduct.Amount, Available: @recipeProduct.TotalAmount(), Missing: @recipeProduct.MissingAmount())</div>
+                            <div class="text-danger">
+                                @recipeProduct.Product!.Name (Required: @requiredAmount, Available: @recipeProduct.TotalAmount(), Missing: @(requiredAmount - recipeProduct.TotalAmount())
+                            </div>
                         }
                         else
                         {
-                            <div>@recipeProduct.Product!.Name (Required: @recipeProduct.Amount, Available: @recipeProduct.TotalAmount())</div>
+                            <div>@recipeProduct.Product!.Name (Required: @requiredAmount, Available: @recipeProduct.TotalAmount())</div>
                         }
                     }
                     else
                     {
-                        <div>@recipeProduct.Product!.Name (Required: @recipeProduct.Amount)</div>
+                        <div>@recipeProduct.Product!.Name (Required: @requiredAmount)</div>
                     }
                 }
             </td>

@@ -17,6 +17,10 @@
             <input asp-for="Recipe.Name" class="form-control"/>
             <span asp-validation-for="Recipe.Name" class="text-danger"></span><br/>
 
+            <label asp-for="Recipe.Instructions" class="control-label"></label>
+            <input asp-for="Recipe.Instructions" class="form-control"/>
+            <span asp-validation-for="Recipe.Instructions" class="text-danger"></span><br/>
+
             <label asp-for="Recipe.IsPrivate" class="control-label"></label>
             @Html.CheckBoxFor(m => m.Recipe.IsPrivate)
             <span asp-validation-for="Recipe.IsPrivate" class="text-danger"></span><br/>

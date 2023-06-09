@@ -13,6 +13,8 @@ public class Recipe : AbstractIdDatabaseEntity
     [Display(Name = "Preparation time (minutes)")]
     [Range(1, 9999)] public int PrepareTimeMinutes { get; set; }
 
+    public string? Instructions { get; set; }
+
     public Guid? CreatorId { get; set; }
     public User? Creator { get; set; }
 

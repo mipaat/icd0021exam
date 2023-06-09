@@ -14,40 +14,40 @@ public static class RecipeHelpers
     public static float TotalAmount(this RecipeProduct recipeProduct) =>
         recipeProduct.Product!.TotalAmount();
 
-    public static bool IsMissingIngredient(this RecipeProduct recipeProduct)
-    {
-        return recipeProduct.TotalAmount() < recipeProduct.Amount;
-    }
-
-    public static float MissingAmount(this RecipeProduct recipeProduct) =>
-        recipeProduct.Amount - recipeProduct.TotalAmount();
-
-    public static List<MissingIngredient> GetMissingIngredients(this Recipe recipe)
+    public static List<MissingIngredient> GetMissingIngredients(this Recipe recipe, float? servings = null)
     {
         var result = new List<MissingIngredient>();
+        var servingsMultiplier = GetServingsMultiplier(recipe.Servings, servings);
         foreach (var recipeProduct in recipe.RecipeProducts!)
         {
+            var requiredAmount = recipeProduct.Amount * servingsMultiplier;
             var totalAmount = recipeProduct.Product!.ProductExistences!.Sum(e => e.Amount);
-            if (totalAmount < recipeProduct.Amount)
+            if (totalAmount < requiredAmount)
             {
-                result.Add(new MissingIngredient(recipeProduct.Product, recipeProduct.Amount - totalAmount));
+                result.Add(new MissingIngredient(recipeProduct.Product, requiredAmount - totalAmount));
             }
         }
 
         return result;
     }
 
-    public static bool IsPreparable(this Recipe recipe)
+    public static bool IsPreparable(this Recipe recipe, float? servings = null)
     {
-        return recipe.GetMissingIngredients().Count == 0;
+        return recipe.GetMissingIngredients(servings).Count == 0;
     }
 
-    public static void PrepareRecipe(AppDbContext dbContext, Recipe recipe)
+    public static float GetServingsMultiplier(float defaultServings, float? servings)
+    {
+        servings ??= defaultServings;
+        return servings.Value / defaultServings;
+    }
+
+    public static void PrepareRecipe(AppDbContext dbContext, Recipe recipe, float? servingsAmount = null)
     {
         var missing = new List<MissingIngredient>();
         foreach (var recipeProduct in recipe.RecipeProducts!)
         {
-            var amount = recipeProduct.Amount;
+            var amount = recipeProduct.Amount * GetServingsMultiplier(recipe.Servings, servingsAmount);
             foreach (var productExistence in recipeProduct.Product!.ProductExistences!)
             {
                 if (amount <= 0) break;
@@ -72,7 +72,10 @@ public static class RecipeHelpers
         string? includesIngredientQuery = null,
         string? excludesIngredientQuery = null,
         int? minPrepareTime = null,
-        int? maxPrepareTime = null)
+        int? maxPrepareTime = null,
+        bool filterServable = false,
+        float? servingsAmount = null,
+        ERecipePrivacyFilter privacyFilter = ERecipePrivacyFilter.All)
     {
         IQueryable<Recipe> query = dbContext.Recipes.Include(e => e.Creator)
             .Include(e => e.RecipeProducts!)
@@ -94,9 +97,9 @@ public static class RecipeHelpers
         if (excludesIngredientQuery != null)
         {
             var excludedIngredients = excludesIngredientQuery.Split(", ");
-            query = query.Where(e => 
+            query = query.Where(e =>
                 e.RecipeProducts!.Select(rp => rp.Product!)
-                    .All(p => !excludedIngredients.Any(i => EF.Functions.ILike(p!.Name, i))));
+                    .All(p => !excludedIngredients.Any(i => EF.Functions.ILike(p.Name, i))));
         }
 
         if (minPrepareTime != null)
@@ -109,6 +112,21 @@ public static class RecipeHelpers
             query = query.Where(e => e.PrepareTimeMinutes <= maxPrepareTime);
         }
 
-        return await query.ToListAsync();
+        if (privacyFilter == ERecipePrivacyFilter.Private)
+        {
+            query = query.Where(r => r.IsPrivate);
+        }
+        else if (privacyFilter == ERecipePrivacyFilter.Public)
+        {
+            query = query.Where(r => !r.IsPrivate);
+        }
+
+        var result = await query.ToListAsync();
+        if (filterServable)
+        {
+            result = query.Where(r => r.IsPreparable(servingsAmount)).ToList();
+        }
+
+        return result;
     }
 }
