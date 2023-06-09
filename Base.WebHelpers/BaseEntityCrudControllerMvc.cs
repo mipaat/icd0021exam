@@ -15,7 +15,9 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
         DbContext = dbContext;
     }
 
-    protected DbSet<TEntity> Entities =>
+    protected virtual IQueryable<TEntity> Entities => BaseEntities;
+
+    protected DbSet<TEntity> BaseEntities =>
         DbContext
             .GetType()
             .GetProperties()
@@ -64,7 +66,7 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
         if (ModelState.IsValid)
         {
             entity.Id = Guid.NewGuid();
-            Entities.Add(entity);
+            BaseEntities.Add(entity);
             await DbContext.SaveChangesAsync();
             // ReSharper disable once Mvc.ActionNotResolved
             return RedirectToAction(nameof(Index));
@@ -103,7 +105,7 @@ public abstract class BaseEntityCrudControllerMvc<TDbContext, TEntity> : Control
         {
             try
             {
-                Entities.Update(entity);
+                BaseEntities.Update(entity);
                 await DbContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)

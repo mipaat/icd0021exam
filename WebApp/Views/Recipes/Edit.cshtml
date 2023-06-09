@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Domain.Recipe
+
+@{
+    ViewData["Title"] = "Edit Recipe";
+}
+
+<h1>Edit Recipe</h1>
+
+<hr/>
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span><br/>
+
+            <label asp-for="IsPrivate" class="control-label"></label>
+            @Html.CheckBoxFor(m => m.IsPrivate)
+            <span asp-validation-for="IsPrivate" class="text-danger"></span><br/>
+
+            <label asp-for="Servings" class="control-label"></label>
+            <input asp-for="Servings" class="form-control"/>
+            <span asp-validation-for="Servings" class="text-danger"></span><br/>
+
+            <label asp-for="PrepareTimeMinutes" class="control-label"></label>
+            <input asp-for="PrepareTimeMinutes" class="form-control"/>
+            <span asp-validation-for="PrepareTimeMinutes" class="text-danger"></span><br/>
+
+            <input type="hidden" asp-for="Id"/>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

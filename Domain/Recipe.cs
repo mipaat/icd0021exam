@@ -7,8 +7,10 @@ namespace Domain;
 public class Recipe : AbstractIdDatabaseEntity
 {
     [MaxLength(256)] public string Name { get; set; } = default!;
+    [Display(Name = "Is private?")]
     public bool IsPrivate { get; set; }
     public float Servings { get; set; }
+    [Display(Name = "Preparation time (minutes)")]
     public int PrepareTimeMinutes { get; set; }
 
     public Guid? CreatorId { get; set; }

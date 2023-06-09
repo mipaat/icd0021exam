@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
-@model Domain.Category
+@model Domain.Recipe
 
 @{
     ViewData["Title"] = "Create";
@@ -7,7 +7,7 @@
 
 <h1>Create</h1>
 
-<h4>Category</h4>
+<h4>Recipe</h4>
 <hr/>
 <div class="row">
     <div class="col-md-4">
@@ -18,13 +18,17 @@
                 <input asp-for="Name" class="form-control"/>
                 <span asp-validation-for="Name" class="text-danger"></span><br/>
 
-                <label asp-for="SupportsProducts" class="control-label"></label>
-                @Html.CheckBoxFor(m => m.SupportsProducts)
-                <span asp-validation-for="SupportsProducts" class="text-danger"></span><br/>
+                <label asp-for="IsPrivate" class="control-label"></label>
+                @Html.CheckBoxFor(m => m.IsPrivate)
+                <span asp-validation-for="IsPrivate" class="text-danger"></span><br/>
 
-                <label asp-for="SupportsRecipes" class="control-label"></label>
-                @Html.CheckBoxFor(m => m.SupportsRecipes)
-                <span asp-validation-for="SupportsRecipes" class="text-danger"></span><br/>
+                <label asp-for="Servings" class="control-label"></label>
+                <input asp-for="Servings" class="form-control"/>
+                <span asp-validation-for="Servings" class="text-danger"></span><br/>
+
+                <label asp-for="PrepareTimeMinutes" class="control-label"></label>
+                <input asp-for="PrepareTimeMinutes" class="form-control"/>
+                <span asp-validation-for="PrepareTimeMinutes" class="text-danger"></span><br/>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary"/>

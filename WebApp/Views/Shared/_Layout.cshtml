@@ -33,6 +33,9 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Recipes" asp-action="Index">Recipes</a>
+                    </li>
                     @if (User.IsInRole(RoleNames.Admin))
                     {
                         <partial name="_AdminDropdown"/>
